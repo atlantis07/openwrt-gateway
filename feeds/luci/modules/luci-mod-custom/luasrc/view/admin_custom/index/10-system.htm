@@ -1,0 +1,48 @@
+<%#
+ Copyright 2008 Steven Barth <steven@midlink.org>
+ Copyright 2008-2018 Jo-Philipp Wich <jo@mein.io>
+ Licensed to the public under the Apache License 2.0.
+-%>
+
+<%
+	local boardinfo = luci.util.ubus("system", "board") or { }
+	local unameinfo = nixio.uname() or { }
+	local ver = require "luci.version"
+
+        local rv = {}
+        local ntm = require "luci.model.network".init()          
+        local wan_nets = ntm:get_wan_networks()             
+        local wan6_nets = ntm:get_wan6_networks()
+     
+
+        if #wan_nets > 0 then                                                          
+          local k, v                                                            
+          rv.wan = { } 
+          for k, v in pairs(wan_nets) do                                         
+            local wan_info = {
+              ipaddr  = v:ipaddr(),                                  
+            }                                                              
+            
+            rv.wan[#rv.wan+1] = wan_info                                   
+          end                                                                    
+        end
+%>
+
+<div class="cbi-section">
+	<h3><%:System%></h3>
+
+	<div class="table" width="100%">
+		<div class="tr"><div class="td left" width="33%"><%:Firmware Version%></div><div class="td left">
+			<%=pcdata(ver.distname)%> <%=pcdata(ver.distversion)%> /
+			<%=pcdata(ver.luciname)%> (<%=pcdata(ver.luciversion)%>)
+		</div></div>
+		<div class="tr"><div class="td left" width="33%"><%:Kernel Version%></div><div class="td left"><%=unameinfo.release or "?"%></div></div>
+		<div class="tr"><div class="td left" width="33%"><%:Local Time%></div><div class="td left" id="localtime">-</div></div>
+		<div class="tr"><div class="td left" width="33%"><%:Uptime%></div><div class="td left" id="uptime">-</div></div>
+		<div class="tr"><div class="td left" width="33%"><%:Load Average%></div><div class="td left" id="loadavg">-</div></div>
+		<div class="tr"><div class="td left" width="33%"><%:WAN IPv4%></div><div class="td left" id="wan"><%=rv.wan[1].ipaddr%></div></div>
+		<div class="tr"><div class="td left" width="33%"><%:WAN IPv6%></div><div class="td left" id="wan6">-</div></div>
+		<div class="tr"><div class="td left" width="33%"><%:4G Status%></div><div class="td left" id="4g">-</div></div>
+		<div class="tr"><div class="td left" width="33%"><%:Lora Connects%></div><div class="td left" id="lora_connects">-</div></div>
+	</div>
+</div>
