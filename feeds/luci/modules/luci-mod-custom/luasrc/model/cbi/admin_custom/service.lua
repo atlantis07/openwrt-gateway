@@ -53,6 +53,7 @@ o.datatype	= "string"
 o:depends("enable", 1)
 
 
+
 p = m:section(TypedSection, "tcp", translate("tcp configurations"))
 p.anonymous = true
 p.addremove = false
@@ -72,5 +73,39 @@ q.optional	= false
 q.default	= 8001
 q.datatype	= "uinteger"
 q:depends("enable", 1)
+
+
+
+uart = m:section(TypedSection, "uart", translate("uart configurations"))
+uart.anonymous = true
+uart.addremove = false
+
+ue = uart:option(ListValue, "enable", translate("Uart Enable"))  
+ue:value(1, translate("Enable")) 
+ue:value(0, translate("Disable"))
+ 
+baud = uart:option(Value, "baud", translate("Baudrate"))
+baud.optional	= false
+baud.default	= 9600
+baud.datatype	= "uinteger"
+baud:depends("enable", 1)
+
+bits = uart:option(ListValue, "bits", translate("Bits"))
+bits:value(8, 8)
+bits:value(7, 7)
+bits.datatype	= "uinteger"
+bits:depends("enable", 1)
+
+parity = uart:option(ListValue, "parity", translate("Parity"))
+parity:value("N", "N")
+parity:value("E", "E")
+parity:value("O", "O")
+parity:depends("enable", 1)
+
+stop = uart:option(ListValue, "stop", translate("Stop Bits"))
+stop.optional   = false
+stop:value(1, 1)
+stop.datatype	= "uinteger"
+stop:depends("enable", 1)
 
 return m
