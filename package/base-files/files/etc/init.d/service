@@ -1,0 +1,129 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2008 OpenWrt.org
+
+START=90
+USE_PROCD=1
+LOG="/tmp/service.file"
+
+#
+mqtt_en=""
+tcp_en=""
+uart_en=""
+
+server=""
+
+#
+uart_dev="/dev/ttyS1"
+baud=""
+stop=""
+bits=""
+parity=""
+
+#mqtt conf
+user=""
+passwd=""
+sub=""
+pub=""
+
+#tcp conf
+port=""
+
+PROC=/usr/bin/passthrough
+CONF=/var/etc/service.conf
+
+proc_arg=""
+
+get_params(){
+	config_get $2 $1 $3
+}
+
+start_service() {
+#        . /lib/functions.sh
+#        . /lib/functions/network.sh
+
+	echo "service start" >> $LOG
+	config_load service
+	config_foreach get_params uart uart_en enable
+	config_foreach get_params mqtt mqtt_en enable
+	config_foreach get_params tcp tcp_en enable
+
+	echo "uart $uart_en" >> $LOG
+	echo "mqtt $mqtt_en" >> $LOG
+	echo "tcp $tcp_en" >> $LOG
+
+	if [ "$uart_en" = "0" ]; then
+		exit;
+	fi
+
+	if [ "$mqtt_en" = "1" -a "$tcp_en" = "1" ]; then
+		echo "not support" >> $LOG
+		exit;
+	fi
+
+	#uart init
+	config_foreach get_params uart baud baud
+	config_foreach get_params uart bits bits
+	config_foreach get_params uart parity parity
+	config_foreach get_params uart stop stop
+	echo "$baud $bits $stop $parity" >> $LOG
+
+	setuart $uart_dev $baud $bits $parity $stop
+	sleep 1
+
+	#mqtt server
+	if [ "$mqtt_en" = "1" ]; then
+		config_foreach get_params mqtt server server
+		config_foreach get_params mqtt user user
+		config_foreach get_params mqtt passwd passwd
+		config_foreach get_params mqtt sub sub
+		config_foreach get_params mqtt pub pub
+	
+		echo "$server $sub $pub" >> $LOG
+		if [ "$server" = "" -o "$sub" = "" -o "$pub" = "" ]; then
+			echo "server or sub or pub null" >> $LOG
+			exit
+		else
+			if [ "$user" != "" -a "$passwd" != "" ]; then
+				arg="-mqtt -h $server -u $user -P $passwd -ts $sub -tp $pub -l"
+			else
+				arg="-mqtt -h $server -ts $sub -tp $pub -l"
+			fi
+		fi
+		
+	elif [ "$tcp_en" = "1" ]; then
+		config_foreach get_params tcp server server
+		config_foreach get_params tcp port port
+		if [ "$server" = "" -o "$port" = "" ]; then
+			echo "server or port null" >> $LOG
+			exit
+		else
+			arg="-tcp -h $server -p $port"
+		fi
+	else
+		echo "No server defined" >> $LOG
+		exit;
+	fi	
+	
+	procd_open_instance 
+	procd_set_param respawn
+	procd_set_param command $PROC
+
+	procd_append_param command $arg
+	procd_close_instance
+}
+
+service_triggers()
+{
+    procd_add_reload_trigger "service"
+}
+
+reload_service() {
+#	service_reload
+	stop
+	start
+}
+
+#stop_service() {
+#	killall passthrough
+#	sleep 1
+#}
