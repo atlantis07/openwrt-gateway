@@ -511,4 +511,17 @@
 
 		mediatek,mtd-eeprom = <&factory 0x0000>;
 	};
+
+    gpio-leds {
+		compatible = "gpio-leds";
+		lan1 { 
+			label = "mediatek:green:lan1_0"; 
+			gpios = <&gpio1 8 1>; 
+		}; 
+
+		lan2 { 
+			label = "mediatek:green:lan1_1"; 
+			gpios = <&gpio1 10 1>; 
+		}; 
+	};
 };

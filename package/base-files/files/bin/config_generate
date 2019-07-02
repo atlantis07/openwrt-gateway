@@ -81,7 +81,7 @@ generate_network() {
 		delete network.$1
 		set network.$1='interface'
 		set network.$1.type='$type'
-		set network.$1.ifname='$ifname'
+		set network.$1.ifname='eth0.1 eth0.2'
 		set network.$1.proto='none'
 	EOF
 
@@ -96,7 +96,7 @@ generate_network() {
 		static)
 			local ipad
 			case "$1" in
-				lan) ipad=${ipaddr:-"192.168.2.1"} ;;
+				lan) ipad=${ipaddr:-"192.168.1.253"} ;;
 				*) ipad=${ipaddr:-"192.168.$((addr_offset++)).1"} ;;
 			esac
 
@@ -106,6 +106,8 @@ generate_network() {
 				set network.$1.proto='static'
 				set network.$1.ipaddr='$ipad'
 				set network.$1.netmask='$netm'
+				set network.$1.gateway='192.168.1.1'
+				set network.$1.dns='114.114.114.114'
 			EOF
 			[ -e /proc/sys/net/ipv6 ] && uci set network.$1.ip6assign='60'
 		;;
@@ -253,19 +255,21 @@ generate_static_system() {
 
 		delete system.@led[0]                                                   
 		add system led                                                          
-		set system.@led[-1].sysfs='mediatek:green:lan_1'                        
+		set system.@led[-1].sysfs='mediatek:green:lan1_0'  
 		set system.@led[-1].trigger='netdev'                                    
-		set system.@led[-1].dev='br-lan'                                        
-		set system.@led[-1].mode='link tx rx'                                   
+		set system.@led[-1].dev='eth0.1'  
+		set system.@led[-1].mode='tx'                                   
 		set system.@led[-1].default='1'                                         
-		set system.@led[-1].name='lan'                                          
+		set system.@led[-1].name='lan1_0'                                     
 		
 		delete system.@led[1]                                                   
 		add system led                                                          
+		set system.@led[-1].sysfs='mediatek:green:lan1_1'                        
+		set system.@led[-1].trigger='netdev'                                    
+		set system.@led[-1].name='eth0.1'                                         
+		set system.@led[-1].mode='rx'                                   
 		set system.@led[-1].default='1'                                         
-		set system.@led[-1].name='wifi'                                         
-		set system.@led[-1].sysfs='mediatek:green:wifi'                         
-		set system.@led[-1].trigger='phy0radio'
+		set system.@led[-1].name='lan1_1' 
 	EOF
 
 	if json_is_a system object; then

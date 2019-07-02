@@ -1,0 +1,3 @@
+#!/bin/sh
+scp -P 50604 root@39.98.165.253:/root/openwrt/bin/targets/ramips/mt76x8/openwrt-ramips-mt76x8-mt7628-squashfs-sysupgrade.bin /
+tmp/
