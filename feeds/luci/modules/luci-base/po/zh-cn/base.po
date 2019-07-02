@@ -6427,6 +6427,23 @@ msgstr "服务器地址"
 msgid "TCP Port"
 msgstr "端口"
 
+msgid "Door"
+msgstr "远程开门"
+
+msgid "Door Control"
+msgstr "门控"
+
+msgid "Switch GPIO"
+msgstr "门控GPIO号"
+
+msgid "Buzzer GPIO"
+msgstr "喇叭GPIO号"
+
+msgid "Switch Sleep s"
+msgstr "门控延时(秒)"
+
+msgid "Buzzer Sleep ms"
+msgstr "喇叭延时(毫秒)"
 
 #~ msgid ""
 #~ "When using a PSK, the PMK can be generated locally without inter AP "

@@ -77,13 +77,15 @@ generate_network() {
 		*\ * | lan:*) type="bridge" ;;
 	esac
 
-	uci -q batch <<-EOF
-		delete network.$1
-		set network.$1='interface'
-		set network.$1.type='$type'
-		set network.$1.ifname='eth0.1 eth0.2'
-		set network.$1.proto='none'
-	EOF
+	if [ $1 == "lan" ]; then
+		uci -q batch <<-EOF
+			delete network.$1
+			set network.$1='interface'
+			set network.$1.type='$type'
+			set network.$1.ifname='eth0.1 eth0.2'
+			set network.$1.proto='none'
+		EOF
+	fi
 
 	[ -n "$macaddr" ] && uci -q batch <<-EOF
 		delete network.$1_dev
@@ -116,15 +118,15 @@ generate_network() {
 			# fixup IPv6 slave interface if parent is a bridge
 			[ "$type" = "bridge" ] && ifname="br-$1"
 
-			uci set network.$1.proto='dhcp'
-			[ -e /proc/sys/net/ipv6 ] && {
-				uci -q batch <<-EOF
-					delete network.${1}6
-					set network.${1}6='interface'
-					set network.${1}6.ifname='$ifname'
-					set network.${1}6.proto='dhcpv6'
-				EOF
-			}
+			#uci set network.$1.proto='dhcp'
+			#[ -e /proc/sys/net/ipv6 ] && {
+			#	uci -q batch <<-EOF
+			#		delete network.${1}6
+			#		set network.${1}6='interface'
+			#		set network.${1}6.ifname='$ifname'
+			#		set network.${1}6.proto='dhcpv6'
+			#	EOF
+			#}
 		;;
 
 		pppoe)

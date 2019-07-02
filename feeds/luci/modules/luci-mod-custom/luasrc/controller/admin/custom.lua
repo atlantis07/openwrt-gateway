@@ -15,7 +15,9 @@ function index()
 
 	entry({"admin", "custom", "service"}, cbi("admin_custom/service"), _("Service"), 5)
 
-        entry({"admin", "custom", "reboot"}, template("admin_custom/reboot"), _("Reboot"), 90)
+	entry({"admin", "custom", "door"},    cbi("admin_custom/door"),    _("Door"), 6)
+
+    entry({"admin", "custom", "reboot"}, template("admin_custom/reboot"), _("Reboot"), 90)
 	entry({"admin", "custom", "reboot", "call"}, post("action_reboot"))
 end
 
