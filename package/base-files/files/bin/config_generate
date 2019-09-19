@@ -74,14 +74,16 @@ generate_network() {
 
 	# force bridge for multi-interface devices (and lan)
 	case "$1:$ifname" in
-		*\ * | lan:*) type="bridge" ;;
+		#*\ * | lan:*) type="bridge" ;;
+		*\ * | wan:*) type="bridge" ;;
 	esac
 
+		#set network.$1.ifname='$ifname'
 	uci -q batch <<-EOF
 		delete network.$1
 		set network.$1='interface'
 		set network.$1.type='$type'
-		set network.$1.ifname='$ifname'
+		set network.$1.ifname='eth0.1 eth0.2'
 		set network.$1.proto='none'
 	EOF
 
@@ -116,10 +118,11 @@ generate_network() {
 
 			uci set network.$1.proto='dhcp'
 			[ -e /proc/sys/net/ipv6 ] && {
+					#set network.${1}6.ifname='$ifname'
 				uci -q batch <<-EOF
 					delete network.${1}6
 					set network.${1}6='interface'
-					set network.${1}6.ifname='$ifname'
+					set network.${1}6.ifname='eth0.1 eth0.2'
 					set network.${1}6.proto='dhcpv6'
 				EOF
 			}
@@ -238,7 +241,7 @@ generate_static_system() {
 		set system.@system[-1].timezone='Asia/Shanghai'                         
 		set system.@system[-1].timezone='CST-8'                                 
 		set system.@system[-1].ttylogin='0'                                     
-		set system.@system[-1].log_size='64'
+		set system.@system[-1].log_size='1024'
 		set system.@system[-1].urandom_seed='0'
 		
 		delete system.ntp
@@ -441,8 +444,9 @@ if [ ! -s /etc/config/network ]; then
 	touch /etc/config/network
 	generate_static_network
 
-	json_get_keys keys network
-	for key in $keys; do generate_network $key; done
+	#json_get_keys keys network						  //
+	#for key in $keys; do generate_network $key; done //
+	generate_network "wan"
 
 	json_get_keys keys switch
 	for key in $keys; do generate_switch $key; done
