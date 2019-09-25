@@ -38,6 +38,10 @@ service_triggers()
 	procd_add_reload_trigger "smarthome"
 }
 
+stop() {
+    kill -s SIGTERM  $(ps w|grep haclient | grep -v grep | awk '{print $1}')
+}
+
 reload_service() {
 	stop
 	start
